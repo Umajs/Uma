@@ -7,7 +7,7 @@ import { IArgErrorTip } from './type';
  * 统一返回校验提示方法 按需使用Result.json 或者 Result.send
  * @param msg 校验提示信息
  */
-const DefualtReturn = (msg:string) => Result.json({
+export const DefualtReturn = (msg:string|{[key: string]:any}) => Result.json({
     code: 0,
     msg,
 });

@@ -252,4 +252,14 @@ describe('test @Body', () => {
 
         expect(index.text).toEqual('1');
     });
+    it('@Body(classModel) to be err', async () => {
+        const index = await post('/classValidator', { id: '1', age: -10 });
+
+        expect(index.text).toEqual('{"code":0,"msg":{"validate":{"id":["id must be of type number."],"name":["name is required."],"age":["age must be greater than 0."]},"parms":{"id":"1","age":-10}}}');
+    });
+    it('@Body(classModel) to be success', async () => {
+        const index = await post('/classValidator', { id: 1, name: 'umajs', age: 18 });
+
+        expect(index.text).toEqual('This Post body info is {\"id\":1,\"name\":\"umajs\",\"age\":18}');
+    });
 });

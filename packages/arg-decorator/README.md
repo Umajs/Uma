@@ -31,12 +31,45 @@ saveUser(@Body.ToNumber('age') age: number){
 }
 ```
 
+## Body参数装饰器接受并支持校验类型为class类型
+> 当Body传递为class类时，会将请求参数中获取到的数据作为参数调用类构造函数，同时也会进行属性类型校验，校验成功则返回实例化对象。更多class的使用请参考[`@umajs/class-validator`](https://github.com/Umajs/class-validator)
+```ts
+// 定义class
+import { Type, Required, Min, Model } from '@umajs/class-validator';
+export default class UserInfo extends Model {
+    constructor({ id, name, age }: UserInfo, isValid: boolean) {
+        super(isValid);
+        this.id = id;
+        this.name = name;
+        this.age = age;
+    }
+
+    @Type('number')
+    id: number = 123;
+
+    @Required()
+    name?: string;
+
+    @Min(0)
+    age?: number;
+}
+
+// 参数装饰器使用
+@Path({ value: '/post', method: RequestMethod.POST })
+model(@Body(UserInfo) userInfo: user) {
+    return Result.send(`This Post body info is ${JSON.stringify(userInfo)}`);
+
+    // >> {"code":0,"msg":{"validate":{"id":["id must be of type number."],"name":["name is required."],"age":["age must be greater than 0."]},"parms":{"id":"1","age":-10}}}
+}
+
+```
+
 ## API
 
 |修饰器| 使用说明 | 
 ---|---
 @Query(id:string) | url参数修饰器
-@Body(id?:string or Function or string[]) | POST请求参数修饰器 `@Body() body:object `  or `@Body('id') id:any` or  `@Body(['name','age']) user: {name:any,age:any}` 
+@Body(id?:string or Function or string[] or class) | POST请求参数修饰器 `@Body() body:object `  or `@Body('id') id:any` or  `@Body(['name','age']) user: {name:any,age:any}` 
 @Require(id: string,message?:string) | url参数修饰并做必填校验
 @ToNumber(id: string,message?: string) | 参数修饰并类型转换为number类型  类型转换失败则会终止函数执行并返回提示内容
 @ToBoolean(id: string,message?: string) |参数修饰并类型转换布尔类型 类型转换失败则会终止函数执行并返回提示内容
